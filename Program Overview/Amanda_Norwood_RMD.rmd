@@ -1,0 +1,1687 @@
+---
+title: "Bank Churners"
+subtitle: "IST 707 - Final Project"
+author: Renjini Rajan & Amanda Norwood
+output: html_document
+date: '2023-03-05'
+---
+
+
+```{r pressure, echo=FALSE, fig.cap="", out.width = '50%'}
+knitr::include_graphics('/Users/fruitisushi/Downloads/creditcards.webp')
+```
+
+# Introduction
+
+The idea of banking began a long time ago in 1,800 B.C. in Babylon as a method of lending to people. However, lending was not limited to money, it also included banks lending out seeds before harvesting season began. Once harvesting season was over, farmers would pay back their seed loan from the harvest. In terms of money, this also allowed people to take out loans, deposit money for safekeeping, and also exchange currency.  
+
+The core idea of banking was to have a safe method of storing money, gold and silver. In today's time, banking has evolved upon the original idea and expanded their business to credit cards, home lending, checking accounts, savings accounts, auto loans, and much more.The banking industry has evolved to a highly competitive industry as consumers have a vast selection of banks and products to choose from. 
+
+Banks must continuously assess their customer base to predict their needs and when they are about to churn-- meaning leave their services. In the same scenario, banks also want to understand what it takes to retain their current customer base while attracting new customers with the same attributes. The goal of modern banks is to retain their customers and limit the amount of customers that leave their services for another bank.
+
+## Motivation 
+
+Our team members both work in the banking industry and we are interested in analyzing the bank data set as practice before we implement potential data analysis methods at our jobs. This is great practice for a smaller data set as well since our banks' contain millions of rows of data.
+
+## Problem Statement 
+
+Syracuse Bank (SB) noticed that more and more customers are leaving their credit card services and the manager is concerned with the amount of people leaving. SB collects and stores information about its existing and past customers and the data includes personal, demographic and the account details of the products associated with each customer. Our goal is to analyze the data provided by the manager to proactively advise on their business practices to retain their current customers, new products for their customer base, and the potential attributes that cause customers to leave their credit card services. 
+
+# Analysis
+
+## The Data
+
+The data set was pulled from Kaggle and it contains 10,000 rows of data with each row representing a customer. 
+
+### Load Data & Libraries
+
+We will load the data and begin our initial analysis and description of the data.
+
+```{r}
+ccdata = read.csv('/Users/fruitisushi/Documents/Grad Classes/IST 707 - Applied Machine Learning/Project/BankChurners.csv')
+#ccdata= read.csv("/Users/renjinirajan/Desktop/Masters/IST 707- Applied Machine Learning/BankChurners.csv")
+ccdata_cor = ccdata
+```
+
+
+```{r include = FALSE, message = FALSE, warning = FALSE}
+#install.packages('dplyr')
+#install.packages('ggplot2')
+#install.packages('data.table')
+#install.packages('treemap')
+#install.packages('DataExplorer')
+#install.packages('highcharter')
+#install.packages('ggcorrplot')
+#install.packages('viridisLite')
+#install.packages('rpart')
+#install.packages('rpart.plot')
+#install.packages('rattle')
+#install.packages('caret')
+#install.packages('janitor')
+#install.packages('tcltk')
+#install.packages('party')
+#install.packages("randomForest")
+#install.packages("e1071")
+#install.packages("FactoMineR")
+#install.packages('cluster')
+#install.packages('factoextra')
+
+library(randomForest)
+library(dplyr)
+library(ggplot2)
+library(highcharter)
+library(data.table)
+library(treemap)
+library(DataExplorer)
+library(viridisLite)
+library(ggcorrplot)
+library(arules)
+library(class)
+library(BayesFactor)
+library(arulesViz)
+library(rpart)
+library(rpart.plot)
+library(rattle)
+library(janitor)
+library(caret)
+library(e1071)
+library(e1071)
+#library(caTools)
+library(arulesViz)
+library(party)
+##library(tcltk)
+library(FactoMineR)
+library(cluster)
+library(factoextra)
+```
+
+
+
+### Initial Data Exploration and Cleaning 
+
+```{r}
+
+str(ccdata)
+dim(ccdata)
+
+```
+The initial data set shows 10,127 rows and 23 columns. The data structure is a mix of integers, characters, and numerical data.
+
+Now, we will check for incomplete rows.
+
+```{r}
+(sum(is.na(ccdata)))
+```
+
+There are 0 rows with incomplete data. 
+
+Next, we will rename the columns to be more code friendly by shortening some of the variable names and changing it to all lower case.
+
+```{r}
+##Checking column names
+colnames(ccdata)
+```
+
+```{r}
+##Rename columns
+
+setnames(ccdata, 
+         old = c('Attrition_Flag',
+                 'Customer_Age',
+                 'Gender',
+                 'Dependent_count',
+                 'Education_Level',
+                 'Marital_Status',
+                 'Income_Category',
+                 'Card_Category',
+                 'Months_on_book',
+                 'Total_Relationship_Count',
+                 'Months_Inactive_12_mon',
+                 'Contacts_Count_12_mon',
+                 'Credit_Limit',
+                 'Total_Revolving_Bal',
+                 'Avg_Open_To_Buy',
+                 'Total_Amt_Chng_Q4_Q1',
+                 'Total_Trans_Amt',
+                 'Total_Trans_Ct',
+                 'Total_Ct_Chng_Q4_Q1',
+                 'Avg_Utilization_Ratio'),
+         new = c('attrition_flag',
+         'age',
+         'gender',
+         'dependents',
+         'education',
+         'marital',
+         'income',
+         'card',
+         'months_active',
+         'products_num',
+         'months_inactive',
+         'contacts',
+         'creditlimit',
+         'revolving_bal',
+         'open_to_buy',
+         'amt_change_q4_q1',
+         'total_trans_amt',
+         'total_trans_cnt',
+         'cnt_change_q4_q1',
+         'utilization'
+         ))
+
+```
+
+# TREEMAP TRENDS
+Treemap displays hierarchical data as a set of nested rectangles. Each group is represented by a rectangle, which area is proportional to its value. 
+Attrition Trend is explored with some key data fields like Marital Status and Education
+
+a) Trends in attrition with Marital Status and Education. 
+Based on the trend shown below in genral our dataset contains a lesser precentage of Attried Customers and customers who are single has a visually higher attrition rate.
+
+```{r}
+treemap(ccdata, 
+        index=c("marital","attrition_flag"),  
+        vSize = "CLIENTNUM",  
+        type="value", 
+        palette = "Blues",  
+        title="Trends in Attritions with Marital Status", 
+        fontsize.title = 14 
+        )
+
+```
+
+b) Trends in Attritions with Education
+Based on the visualization the attrition trend seems to be same across various education level from unknown to Doctorate. This could be an indication that education might not be an influencing factor for customer attrition. We will check for this as we progress through the analysis using various algorithms and techniques.
+```{r}
+
+treemap(ccdata, 
+        index=c("education","attrition_flag"),  
+        vSize = "CLIENTNUM",  
+        type="value", 
+        palette = "Oranges",  
+        title="Trends in Attritions with Education", 
+        fontsize.title = 14 
+        )
+
+```
+
+
+We must check which variables are relevant to our analysis. 
+```{r}
+summary(ccdata)
+```
+
+CLIENTNUM and the Naives_Bayes_Classifier are irrelevant to our analysis because CLIENTNUM is the customers unique identifier and cannot be factorized. The Naive_Bayes calculation cannot be factorized as well.  
+
+First, we can to make sure we have the original list of column names to ensure we are removing the correct columns.
+```{r}
+##Full list of current column names.
+colnames(ccdata)
+
+##Code to remove last two rows of data, which are the Naive-Bayes calculation.
+ccdata = ccdata[-c(22:23)]
+
+##Now validating that the correct columns were removed.s
+colnames(ccdata)
+
+##Drop CLIENTNUM since it cannot be factorized
+ccdata = ccdata[,c(2:21)]
+
+##Validate CLIENTNUM was successfully dropped.
+colnames(ccdata)
+
+##Verifying we still have 0 complete rows
+(sum(is.na(ccdata)))
+```
+
+We have successfully dropped the CLIENTNUM and the two columns that contain Naive-Bayes analysis. Again, those variables could not be factorized or were not relevant to our analysis and thus dropped from the data set. We also validated the correct columns were dropped and confirmed we still have zero complete columns.
+```{r}
+##Validate column names were changed correctly
+str(ccdata)
+```
+
+## Exploratory Data Analysis & Factorization
+
+
+
+```{r}
+dim(ccdata)
+```
+
+### Factorization 
+After have cleaned the data set, we will explore the each of the variables and factorize them. We have 20 variables to factorize. 
+
+We will explore the character type variables first and find their number of unique variables within the column to factorize them.
+
+
+#### 1/20: attrition_flag
+This variables lets us know whether the customer is current or past.
+```{r}
+unique(ccdata$attrition_flag)
+#There are two unique fields
+ccdata$attrition_flag = factor(ccdata$attrition_flag)
+#We should see a return factor of 2
+str(ccdata$attrition_flag) 
+#2 levels are returned
+```
+
+#### 2/20: gender
+The gender is defined as Male or Female.
+```{r}
+unique(ccdata$gender)
+#There are two unique fields
+ccdata$gender = factor(ccdata$gender)
+#We should see a return factor of 2
+str(ccdata$gender)
+#2 levels are returned
+```
+
+#### 3/20: education
+Education level of the customer.
+```{r}
+unique(ccdata$education)
+#There are 7 unique fields
+ccdata$education = factor(ccdata$education)
+#We should see a return factor of 7
+str(ccdata$education)
+#7 levels are returned
+```
+
+
+#### 4/20: marital status
+This is the customers marital status.
+```{r}
+unique(ccdata$marital)
+#There are 4 unique fields
+ccdata$marital = factor(ccdata$marital)
+#We should see a return factor of 4
+str(ccdata$marital)
+#4 levels are returned
+```
+
+#### 5/20: income
+This variable shows the customers income level.
+```{r}
+unique(ccdata$income)
+#There are 6 unique fields
+ccdata$income = factor(ccdata$income)
+#We should see a return factor of 6
+str(ccdata$income)
+#6 levels are returned
+```
+
+#### 6/20: card
+This field shows the type of credit card the customer is using.
+```{r}
+unique(ccdata$card)
+#There are 4 unique fields
+ccdata$card = factor(ccdata$card)
+#We should see a return factor of 4
+str(ccdata$card)
+#4 levels are returned
+```
+
+#### 7/20: dependents
+This shows the number of dependents the customer has reported.
+```{r}
+unique(ccdata$dependents)
+#There are 6 unique fields
+ccdata$dependents = factor(ccdata$dependents)
+#We should see a return factor of 6
+str(ccdata$dependents)
+#6 levels are returned
+```
+
+#### 8/20: products_num
+```{r}
+unique(ccdata$products_num)
+#There are 6 unique fields
+ccdata$products_num = factor(ccdata$products_num)
+#We should see a return factor of 6
+str(ccdata$products_num)
+#6 levels are returned
+```
+
+
+#### 9/20: contacts
+This field shows the number of times the bank has contacted the customer.
+
+```{r}
+unique(ccdata$contacts)
+#There are 7 unique fields
+ccdata$contacts = factor(ccdata$contacts)
+#We should see a return factor of 7
+str(ccdata$contacts)
+#7 levels are returned
+```
+
+#### 10/20: months_inactive
+This field shows the number of months the customer has been inactive with the bank.
+
+```{r}
+unique(ccdata$months_inactive)
+#There are 7 unique fields
+ccdata$months_inactive = factor(ccdata$months_inactive)
+#We should see a return factor of 7
+str(ccdata$months_inactive)
+#7 levels are returned
+```
+
+
+#### 11/20: age
+This is the customers age.
+
+```{r}
+#We can see the customer ages can age from 26 to 73
+min(ccdata$age)
+max(ccdata$age)
+
+#The histogram shows the the core of the customer ages are between 41 and 52.
+hist(ccdata$age)
+abline(v=quantile(ccdata$age,c(0.25)), col="black")
+abline(v=quantile(ccdata$age,c(0.75)), col="black")
+
+#Factorize age
+ccdata$age = cut(ccdata$age, breaks = c(20,30,40,50,60,70,Inf),
+                        labels=c('twenties','thirties','fourties','fifties','sixties','seventies'))
+
+#Verify it is factorized
+str(ccdata$age)
+
+#Verify there are no NA's
+(sum(is.na(ccdata)))
+```
+
+#### 12/20: months active
+This field quantifies the number of months the customer has been on the books with the bank.
+
+```{r}
+#Months active range between 13 and 56.
+min(ccdata$months_active)
+max(ccdata$months_active)
+
+#Factorize months_active
+ccdata$months_active = cut(ccdata$months_active, breaks = c(10,20,30,40,50,60,70,Inf),
+                        labels=c('tens','twenties','thirties','fourties','fifties','sixties','seventies'))
+
+#Verify it was factorized
+str(ccdata$months_active)
+
+#Verify no NA data
+(sum(is.na(ccdata)))  
+```
+
+#### 13/20: credit_limit
+This field shows the credit limit of the customer in dollar amounts.
+
+```{r}
+#Credit limit ranges from $1,438 to $34,516
+min(ccdata$creditlimit)
+max(ccdata$creditlimit)
+
+#Credit limit has a wide range with 50% of its customers falling between roughly $2,600 and $11,000
+hist(ccdata$creditlimit)
+abline(v=quantile(ccdata$creditlimit,c(0.25)), col="black")
+abline(v=quantile(ccdata$creditlimit,c(0.75)), col="black")
+
+#Factorize into 4 bins
+min_ccl = min(ccdata$creditlimit) - 1 
+max_ccl = max(ccdata$creditlimit) + 1
+bins_ccl = 4
+width_ccl=(max_ccl-min_ccl)/bins_ccl;
+
+ccdata$creditlimit = cut(ccdata$creditlimit, breaks=seq(min_ccl, max_ccl, width_ccl),
+                      labels=c('Low','Medium','High','Max'))
+
+#Verify
+str(ccdata$creditlimit)
+
+#Verify no NA data
+(sum(is.na(ccdata)))  
+```
+
+#### 14/20: revolving_bal
+This field shows the revolving balance on the customers credit card in dollar amount.
+
+```{r}
+#The balance ranges from $0 to $2,517
+min(ccdata$revolving_bal)
+max(ccdata$revolving_bal)
+
+boxplot(ccdata$revolving_bal)
+
+#We will break down the data by every 500
+min_rb <- min(ccdata$revolving_bal) - 1
+max_rb <- max(ccdata$revolving_bal) + 1
+bins_rb = 6
+width_rb=(max_rb-min_rb)/bins_rb;
+
+ccdata$revolving_bal = cut(ccdata$revolving_bal, breaks=seq(min_rb, max_rb, width_rb),
+                      labels=c('0','500s','1000s','1500s','2000s','2500s')) 
+
+#Verify factorization
+str(ccdata$revolving_bal)
+
+#Verify no NAs
+(sum(is.na(ccdata$revolving_bal)))
+```
+
+#### 15/20: open_to_buy
+This is the average credit line of the past 12 months.
+
+```{r}
+boxplot(ccdata$open_to_buy)
+
+min_otb <- min(ccdata$open_to_buy) - 1
+max_otb <- max(ccdata$open_to_buy) + 1
+bins_otb = 6
+width_otb=(max_otb-min_otb)/bins_otb;
+
+#Factorize
+ccdata$open_to_buy = cut(ccdata$open_to_buy, breaks=seq(min_otb, max_otb, width_otb),
+                      labels=c('0','500s','1000s','1500s','2000s','2500s')) 
+
+#Verify
+str(ccdata$open_to_buy)
+#Verify no NAs
+(sum(is.na(ccdata$open_to_buy)))
+```
+
+#### 16/20: total_trans_amt
+This is the total dollar amount of transactions in the last 12 months.
+
+```{r}
+hist(ccdata$total_trans_amt)
+min_tta <- min(ccdata$total_trans_amt) - 1
+max_tta <- max(ccdata$total_trans_amt) + 1
+bins_tta = 3
+width_tta=(max_tta-min_tta)/bins_tta
+
+#Factorize
+ccdata$total_trans_amt = cut(ccdata$total_trans_amt, breaks=seq(min_tta, max_tta, width_tta),
+                      labels=c('Low','Medium','High')) 
+#Verify
+str(ccdata$total_trans_amt)
+#Verify no NAs
+(sum(is.na(ccdata$total_trans_amt)))
+```
+
+#### 17/20: amt_change_q4_q1
+This is the change of dollar amount between Q4 over Q1.
+
+```{r}
+boxplot(ccdata$amt_change_q4_q1)
+min_amtchange <- min(ccdata$amt_change_q4_q1) -.01
+max_amtchange <- max(ccdata$amt_change_q4_q1) + .01
+bins_amtchange = 3
+width_amtchange=(max_amtchange-min_amtchange)/bins_amtchange
+#Factorization
+ccdata$amt_change_q4_q1  = cut(ccdata$amt_change_q4_q1, breaks=seq(min_amtchange, max_amtchange, width_amtchange),
+                      labels=c('Low','Medium','High')) 
+#Verify factorization
+str(ccdata$amt_change_q4_q1)
+
+#Verify no NA's
+sum(is.na(ccdata$amt_change_q4_q1))
+```
+
+
+#### 18/20: total_trans_cnt
+This is the total number of tranaactions in the last 12 months.
+
+```{r}
+boxplot(ccdata$total_trans_cnt)
+#Factorization
+ccdata$total_trans_cnt = cut(ccdata$total_trans_cnt, breaks = c(0,20,40,60,80,100,120,140,Inf),
+                        labels=c('Under 20','20s','40s','60s','80s','100s','120s','140s'))
+#Verify
+str(ccdata$total_trans_cnt)
+#Verify no NA's
+sum(is.na(ccdata$total_trans_cnt))
+```
+
+#### 19/20: cnt_change_q4_q1
+This is the change of transaction count between Q4 over Q1.
+```{r}
+boxplot(ccdata$cnt_change_q4_q1)
+min_cntchange = min(ccdata$cnt_change_q4_q1) -.01
+max_cntchange = max(ccdata$cnt_change_q4_q1) + .01
+bins_cntchange = 3
+width_cntchange=(max_cntchange-min_cntchange)/bins_cntchange;
+#Factorization
+ccdata$cnt_change_q4_q1 = cut(ccdata$cnt_change_q4_q1, breaks=seq(min_cntchange, max_cntchange, width_cntchange),
+                      labels=c('Low','Medium','High')) 
+str(ccdata$cnt_change_q4_q1)
+#Verify no NA's
+sum(is.na(ccdata$cnt_change_q4_q1))
+```
+
+#### 20/20: utilization
+
+```{r}
+boxplot(ccdata$utilization)
+min_utilization <- min(ccdata$utilization) -.01
+max_utilization <- max(ccdata$utilization) + .01
+bins_utilization = 3
+width_utilization=(max_utilization-min_utilization)/bins_utilization;
+#Factorize
+ccdata$utilization  = cut(ccdata$utilization, breaks=seq(min_utilization, max_utilization, width_utilization),
+                      labels=c('Low','Medium','High')) 
+#Verify
+str(ccdata$utilization)
+#Verify no NA's
+sum(is.na(ccdata$utilization))
+```
+
+One final check to verify all the variables are factorized.
+```{r}
+str(ccdata)
+```
+
+### Exploratory Data Analysis
+
+
+#### Correlation Matrix
+
+The correlation matrix below converted all the factors in the data set and set them as numeric. Then the p-values were derived from the correlation matrix. The visual below is showing only the lower half of the correlation matrix since the top half would be repeated values. Also, insignificant p-values or correlations were left as blank.
+
+A positive correlation is shown in blue and negative correlations are colored in red. The number displayed in the center of the boxes are the correlation p-values.
+
+The strongest positive correlations are:
+-age & months active: this makes sense considering the older you become, the longer you are retained at the bank.
+-credit limit & the amount open to buy: the higher the customers credit limit, the more they have open to buy.
+-total transaction amount & total transaction count: seemingly, transaction amount and count go hand in hand.
+
+The strongest negative correlations are:
+-gender & income: this may be irrelevant as the correlation p-value is -0.5 and there are only two potential genders.
+-open to buy & utilization:  the higher the utilization, the less the customer has open to buy.
+-credit limit & utilization: the higher the utilization, the less their credit limit may be.
+-number of products & total transaction amount: 
+
+```{r}
+corr = lapply(ccdata,as.numeric)
+corr = data.frame(corr)
+corrmatrix = round(cor(corr), 1)
+p.mat = cor_pmat(corrmatrix)
+
+ggcorrplot(corrmatrix, hc.order = TRUE, type = 'lower',
+           outline.col = 'black',
+           ggtheme = ggplot2::theme_gray,
+           lab = TRUE, 
+           title= 'Correlation Matrix',
+           show.legend =TRUE,
+           lab_size = 2,
+           tl.cex = 8,
+           p.mat=p.mat,insig='blank',
+           colors=c("#E46726", "white", "#6D9EC1"))
+```
+
+
+#### Data Plot
+After the data cleaning, the data is plotted to see the frequency and dispersion of data. 
+
+We can see the majority of our data set contains current customers.
+
+
+```{r}
+plot_bar(ccdata)
+```
+
+
+#### Attrition Flag Exploration
+
+Looks like attrited customers have a total transaction amount cut off at around $11,000.
+
+
+```{r}
+hchart(
+  ccdata_cor,
+  "scatter",
+  hcaes(x = creditlimit, y = total_trans_amt, group = attrition_flag)
+)
+```
+
+
+#### Cancellations by Attributes
+
+We can see a quick overview of attrited customers and their income levels. 
+
+```{r}
+ccdata %>%
+  filter(attrition_flag == "Attrited Customer") %>%
+  count(income) %>%
+  hchart("treemap", hcaes(x = income, value = n, color = n)) %>%
+  hc_colorAxis(stops = color_stops(colors = viridis(11)))  %>%
+  hc_title(text = "Number of Cancellations By Income", align = "center")
+```
+
+Blue cards is the most common card cancelled. 
+
+```{r}
+ccdata %>%
+  filter(attrition_flag == "Attrited Customer") %>%
+  count(card) %>%
+  hchart("treemap", hcaes(x = card, value = n, color = n)) %>%
+  hc_colorAxis(stops = color_stops(colors = viridis(11)))  %>%
+  hc_title(text = "Number of Cancellations By Card", align = "center")
+```
+
+
+### Data Analysis Methods
+1. Association Rule Mining
+Association  Rule Mining is the process of discovering useful and valuable rules from large amounts of data in various applications. This process can help organizations extract information from their data and identify patterns, relationships, and dependencies that can be used to make informed decisions, improve business processes, and optimize operations. Some of the key terms used in ARM analysis are briefly explained below:
+•	Support: Measures the frequency of the rule in the data. Higher support value indicates that the rule is more frequent and therefore more relevant.
+Typical range for support is 20-40%.
+•	Confidence: Confidence is an estimate of conditional probability of transactions from the left-hand side of the rule when transactions on the right- hand side of the rule happens . It measures the reliability of the rule and higher values indicates that the rule is more likely to be true.
+A confidence value of 0.9 is considered as good.
+•	Lift: Measures the correlation of associated items in a rule. 
+Lift Value of >1 is considered positive correlation and <1 implies negative correlation. Value of 1 suggests that the items under consideration are independent of each other. 
+The above terms and the range mentioned here will decide the outcome of ARM analysis. 
+
+#### Apriori
+APRIORI Algorithm is used to generate frequent itemset from a given set of transactions. According to APRIORI Principle: ‘If an itemset is frequent, then all of its subsets must also be frequent’. Algorithm based on this principle helps to support based pruning to  systematically control the exponential growth of candidate itemset. Apriori are measured by support, confidence and lift.
+
+
+##### Card Type 
+
+Through the exploratory data analysis, it is noted that the blue card is the most common card among all cards offered at the bank. Using apriori method will analyze the customer base that uses the blue card.
+
+```{r}
+bluecard = apriori(data=ccdata, parameter=list(supp=0.5,conf = 0.9), 
+               appearance = list(default="lhs",rhs="card=Blue"),
+               control = list(verbose=F))
+bluecard = sort(bluecard, decreasing=TRUE,by="confidence")
+inspect(bluecard[1:10])
+plot(bluecard[1:10], method='scatterplot',interactive=FALSE )
+```
+
+The confidence is set to at least 90% and support is set to at least 50%. The top ten rules are sorted by confidence.
+With the scatterplot between lift and support, we can see how the data is dispersed. At 90% confidence and 60% support, there are 4 data points at 100% confidence. the lowest confidence is roughly around 98%.
+The support are between 50-65%.
+
+```{r}
+plot(bluecard[1:10], method='graph',interactive=FALSE )
+```
+
+Now plotting the data, we can see the major factors of blue card customers. Customers are associated with a low credit limit with results in an open_to_buy of 0. This goes hand in hand since the customers ability to make more purchases is close to 0 if there credit limit is already low. In this scenario, they are also likely to be an existing customer with a blue card.
+
+
+##### Existing Customer 
+Apriori to  explore the support and confidence of Attrited Customer. 
+
+```{r}
+existingcust<-apriori(data=ccdata, parameter=list(supp=0.03,conf = 0.9), 
+               appearance = list(default="lhs",rhs="attrition_flag=Existing Customer"),
+               control = list(verbose=F))
+existingcust<-sort(existingcust, decreasing=TRUE,by="lift")
+inspect(existingcust[1:10])
+```
+For all the top 10 rules for existing customers:
+a) have a lift value > 1. This shows the variables present in the rules are positively correlated. 
+b) Confidence =1. This shows the high reliability of the rule.
+c) Support = Support between 20-40% considered as good and all the rules are above that minimal threshold. 
+
+Some Additional Notes:
+Based on the rules a customer tend to stay with the bank when
+a) Transaction Amounts are high
+b) Transactions counts are higher like in the hundreds
+c) Combination of both a and b
+d) 'Male' customer with high transaction count
+e) Customer age is in the forties. 
+
+
+
+```{r}
+#visualization of rules
+plot(existingcust[1:5],method="graph",engine='interactive',shading="lift")
+```
+
+
+##### Attrited Customer
+Apriori to  explore the support and confidence of Attrited Customer. 
+```{r}
+attritedcust<-apriori(data=ccdata, parameter=list(supp=0.002,conf = 0.9), 
+               appearance = list(default="lhs",rhs="attrition_flag=Attrited Customer"),
+               control = list(verbose=F))
+attritedcust<-sort(attritedcust, decreasing=TRUE,by="support")
+inspect(attritedcust[1:10])
+```
+
+For the top 10 rules on Attrited Customers:
+a) Customers with lesser contacts
+b) Customers with transaction counts on the lower side(forties)
+c)Customers relatively new (active months in the thirties)
+d)Inactive Customers
+
+- These are agreeing to the common behavior of a customer when he/she want to stop using a card.
+```{r}
+#Visualizing the rules
+plot(attritedcust[1:5],method="graph",engine='interactive',shading="lift")
+```
+
+```{r}
+plot(attritedcust[1:10], method='scatterplot')
+```
+
+As we apply additional techniques on the data, we will explore further on these criterias.
+
+### Decision Tree Analysis
+Decision Trees are a type of Supervised Machine Learning where the data is continuously split according to a certain parameter. The tree can be explained by two entities, namely decision nodes and leaves. The leaves are the decisions or the final outcomes. And the decision nodes are where the data is split. 
+Decision Trees can be built unpruned or pruned. Pruning is a data compression technique in machine learning and search algorithms that reduces the size of decision trees by removing sections of the tree that are non-critical and redundant to classify instances. Pruning reduces the complexity of the final classifier, and hence improves predictive accuracy by the reduction of overfitting. 
+
+
+```{r}
+ccdata_dt<-ccdata
+```
+
+
+#split the data 70-30%
+```{r}
+split1<- sample(c(rep(0, 0.7 * nrow(ccdata_dt)), rep(1, 0.3 * nrow(ccdata_dt))))
+```
+
+```{r}
+table(split1) 
+```
+
+```{r}
+train <- ccdata_dt[split1 == 0, ]   
+test <- ccdata_dt[split1== 1, ]  
+```
+
+```{r}
+str(train)
+```
+
+#Unpruned Tree
+testtime = rpart(attrition_flag~., data = train, method = 'class', control = rpart.control(cp=0,minsplit=3,maxdepth=7))
+
+
+```{r}
+tree_model1 <- rpart( attrition_flag ~ . , data = train
+, method = 'class'
+#, control = rpart.control(minbucket = 1, minsplit=1, cp=-1)
+, model = T
+)
+
+rsq.rpart(tree_model1)
+```
+
+```{r}
+summary(tree_model1)
+```
+
+Variable importance: 
+cnt_change_q4_q1
+revolving_bal
+total_trans_cnt
+total_trans_amt 
+
+These are in line with Apriori.
+
+```{r}
+fancyRpartPlot(tree_model1)
+```
+
+```{r}
+set.seed(500)
+imp <- varImp(tree_model1, scale = TRUE) # most important variables
+imp$pixel <- rownames(imp)
+imp <- imp[order(imp$Overall),]
+imp.df <- as.data.frame(tail(imp))
+barplot(imp.df$Overall,
+ main = "Decision Tree Variable Importance",
+ xlab = "Importance",
+ names.arg = imp.df$pixel,
+ las = 2,
+ col = "blue",
+ horiz = TRUE)
+```
+#Prediction using tree_model1
+```{r}
+set.seed(500)
+pred<- predict(object=tree_model1,test[-1],type="class")
+tree_model1.cm <- confusionMatrix(pred, test$attrition_flag)
+tree_model1.cm$table
+```
+
+```{r}
+tree_model1.acc <- round(tree_model1.cm$overall[1]*100,2)
+tree_model1.acc
+```
+
+
+
+
+
+
+```{r}
+testtime = rpart(attrition_flag~., data = train, method = 'class', control = rpart.control(cp=0,minsplit=3,maxdepth=7))
+rpart.plot(testtime, box.palette="RdBu", shadow.col="gray", nn=TRUE)
+#identify best cp value to use
+#best <- testtime$cptable[which.min(testtime$cptable[,"xerror"]),"CP"]
+#produce a pruned tree based on the best cp value
+#pruned_tree <- prune(testtime, cp=best)
+#plot the pruned tree
+#prp(pruned_tree)
+
+testpred<- predict(object=testtime,test[-1],type="class")
+testpred.cm <- confusionMatrix(testpred, test$attrition_flag)
+testpred.cm$table
+
+test.acc <- round(testpred.cm$overall[1]*100,2)
+test.acc
+
+```
+
+
+
+
+
+
+
+#Pruned Tree and accuracy
+
+```{r}
+printcp(tree_model1)
+```
+```{r}
+plotcp(tree_model1)
+```
+
+#choose a cp(complexity parameter) with lowest x-error value
+```{r}
+set.seed(1000)
+tree_model2 <- prune(tree_model1, cp = 0.010000)
+pred<- predict(object=tree_model2,test[-1],type="class")
+tree_model2.cm <- confusionMatrix(pred, test$attrition_flag)
+tree_model2.cm$table
+```
+
+```{r}
+tree_model2.acc <- round(tree_model2.cm$overall[1]*100,2)
+tree_model2.acc
+
+```
+
+```{r}
+#summary(tree_model2)
+```
+
+
+```{r}
+rpart.plot(tree_model2)
+```
+
+Overfitting happens when a model learns the detail and noise in the training data to the extent that it negatively impacts the performance of the model on new data. This means that the noise or random fluctuations in the training data is picked up and learned as concepts by the model. The problem is that these concepts do not apply to new data and negatively impact the models ability to generalize.
+
+Decision trees are a nonparametric machine learning algorithm that is very flexible and is subject to overfitting training data. This problem can be addressed by pruning a tree after it has learned in order to remove some of the detail it has picked up.
+
+The most popular resampling technique is k-fold cross validation. It allows you to train and test your model k-times on different subsets of training data and build up an estimate of the performance of a machine learning model on unseen data.
+
+
+In the current scenario, we have a high accuracy rate, but it is still useful to check for any overfitting.
+
+##### Cross validation
+
+```{r}
+n <- nrow(train)
+K <- 3
+size <- n%/%K
+set.seed(100)
+rand_value <- runif(n)
+rank <- rank(rand_value)
+block <- (rank-1)%/%size+1
+block <- as.factor(block)
+all.err_tree<- numeric(0)
+for (k in 1:K) {
+ # learn the model on all individuals except the k block
+ model.1<- rpart(attrition_flag~., data=train[block!=k,], method="class")
+ # apply the model to the block number k
+ pred.1<- predict(model.1, newdata=train[block==k,], type="class")
+ # confusion matrix
+  mc<- table(train$attrition_flag[block==k],pred.1)
+ # error rate
+ err<- 1.0 - (mc[1,1]+mc[2,2])/sum(mc)
+ # keep
+ all.err_tree<- rbind(all.err_tree,err)
+}
+```
+
+#Error
+```{r}
+all.err_tree
+```
+
+Error percentage is approx. 8% 
+
+Plotting the error
+```{r}
+par(mar=c(.5,2,1,.5))
+k.fold.error <-as.data.frame(all.err_tree)
+boxplot(k.fold.error, main="3-fold CV error rate")
+```
+
+
+```{r}
+fit = rpart(attrition_flag~., data = train, method = 'class',
+            control = rpart.control(cp=0,minsplit=3,maxdepth=7))
+
+#rsq.rpart(fit)
+#summary(fit)
+#fancyRpartPlot(fit)
+##rpart.plot(fit, box.palette="RdBu", shadow.col="gray", nn=TRUE)
+
+fitpred<- predict(object=fit,test[-1],type="class")
+fitpred.cm <- confusionMatrix(fitpred, test$attrition_flag)
+fitpred.cm$table
+
+fit.acc <- round(fitpred.cm$overall[1]*100,2)
+fit.acc
+```
+
+
+```{r}
+set.seed(10)
+fit2 <- prune(fit, cp = 0.001)
+pred2<- predict(object=fit2,test[-1],type="class")
+fit2.cm <- confusionMatrix(pred2, test$attrition_flag)
+fit2.cm$table
+
+fit2.acc <- round(fit2.cm$overall[1]*100,2)
+fit2.acc
+```
+
+
+
+### Naive Bayes 
+
+This will take the train dataset and run through naiveBayes algorithm. 
+
+```{r}
+trainnb = naiveBayes(as.factor(attrition_flag) ~., data = train)
+```
+
+
+```{r}
+set.seed(999)
+trainnb_pred = predict(trainnb, train, type='class')
+confusionMatrix(trainnb_pred, as.factor(train$attrition_flag))
+```
+
+Miscalculation rate:
+```{r}
+mean(trainnb_pred != train$attrition_flag)
+```
+
+
+```{r}
+set.seed(999)
+trainnb_pred = predict(trainnb, train, type='class')
+cmnb=confusionMatrix(trainnb_pred, as.factor(train$attrition_flag))
+cmnb
+```
+
+
+```{r}
+# Create a matrix with the confusion matrix counts
+conf_mat <- matrix(c(668, 186, 442, 5792), nrow = 2, byrow = TRUE, 
+                   dimnames = list(c("Positives", "Negatives"), 
+                                   c("Attrited Customer", "Existing Customer")))
+
+# Create a bar plot for the confusion matrix
+ggplot(melt(conf_mat), aes(x = Var1, y = value, fill = Var2)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(x = "Actual", y = "Count") +
+  scale_fill_manual(values = c("Attrited Customer" = "purple", "Existing Customer" = "steelblue")) +
+  ggtitle("Confusion Matrix")
+```
+
+
+Miscalculation rate:
+```{r}
+mean(trainnb_pred != train$attrition_flag)
+```
+
+
+This first Bayes prediction test has an predicting ability accuracy rate of 91%. This is high but not quite high enough for an accurate model.
+
+Now it is time to test the prediction model and apply it to the test set:
+
+```{r}
+set.seed(999)
+test$predicted = predict(trainnb,test)
+test$actual = test$attrition_flag
+test_df = data.frame(test$actual,test$predicted)
+confusionMatrix(factor(test$predicted), 
+                factor(test$actual))
+```
+
+The accuracy rate is 91.3% after applying the training data to the test set. The train and test set are 70/30% split. 90% is high however, it may not be high enough to accurately predict whether a customer will leave or stay.
+
+
+```{r}
+# Create a matrix with the confusion matrix counts
+conf_mat2 <- matrix(c(331, 83, 206, 2439), nrow = 2, byrow = TRUE, 
+                   dimnames = list(c("Positives", "Negatives"), 
+                                   c("Attrited Customer", "Existing Customer")))
+
+
+# Create a bar plot for the confusion matrix
+ggplot(melt(conf_mat2), aes(x = Var1, y = value, fill = Var2)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(x = "Actual", y = "Count") +
+  scale_fill_manual(values = c("Attrited Customer" = "purple", "Existing Customer" = "steelblue")) +
+  ggtitle("Confusion Matrix") 
+
+```
+
+### SVM 
+
+Support vector machines (SVMs) are a set of supervised learning methods used for classification, regression and outliers detection. The advantages of support vector machines are: Effective in high dimensional spaces. 
+
+SVM model with less supporting vectors implies faster processing.
+
+```{r}
+set.seed(123)
+ccdata_svm<-ccdata
+split1<- sample(c(rep(0, 0.7 * nrow(ccdata_svm)), rep(1, 0.3 * nrow(ccdata_svm))))
+```
+
+```{r}
+trainsvm <- ccdata_svm[split1 == 0, ]   
+
+testsvm <- ccdata_svm[split1== 1, ]  
+```
+
+With Kernel -Linear
+```{r}
+set.seed(345)
+svm_linear = svm(formula =attrition_flag ~ .,
+                 data = trainsvm,
+                 type = 'C-classification',
+                 kernel = 'linear')
+```
+
+```{r}
+print(svm_linear)
+```
+
+```{r}
+svmlinear_pred = predict(svm_linear, newdata = testsvm)
+```
+
+```{r}
+cm = table(testsvm$attrition_flag, svmlinear_pred)
+cm
+```
+
+```{r}
+confusionMatrix(testsvm$attrition_flag, svmlinear_pred)
+```
+SVM Linear has support Vectors 1423 and Accuracy of 92.03
+
+
+
+```{r}
+table(predicted = svmlinear_pred, true = testsvm$attrition_flag)
+
+plot(svmlinear_pred,testsvm$attrition_flag)
+```
+
+
+#### Using Polynomial
+```{r}
+set.seed(423)
+svm_poly = svm(formula =attrition_flag ~ .,
+                 data = trainsvm,
+                 type = 'C-classification',
+                 kernel = 'polynomial')
+```
+
+```{r}
+print(svm_poly)
+```
+
+```{r}
+svmpoly_pred = predict(svm_poly, newdata = testsvm)
+```
+
+```{r}
+confusionMatrix(testsvm$attrition_flag, svmpoly_pred)
+```
+
+SVM Polynomial has 2468 supporting vectors and accuracy of 83.57%
+# kernel="radial"
+```{r}
+set.seed(123)
+svm_rad = svm(formula =attrition_flag ~ .,
+                 data = trainsvm,
+                 type = 'C-classification',
+                 kernel = 'radial')
+```
+
+
+```{r}
+print(svm_rad)
+```
+
+
+```{r}
+svmrad_pred = predict(svm_rad, newdata = testsvm)
+```
+
+```{r}
+confusionMatrix(testsvm$attrition_flag, svmrad_pred)
+```
+SVM Radial has 2120 Supporting Vectors with 90.22 accuracy
+
+
+##### Using sigmoid
+```{r}
+set.seed(565)
+svm_sig = svm(formula =attrition_flag ~ .,
+                 data = trainsvm,
+                 type = 'C-classification',
+                 kernel = 'sigmoid')
+```
+
+```{r}
+print(svm_sig)
+```
+
+```{r}
+svmsig_pred = predict(svm_sig, newdata = testsvm)
+```
+
+```{r}
+confusionMatrix(testsvm$attrition_flag, svmsig_pred)
+```
+
+##### finding an optimal cost factor and applying it to the lowest accurate model
+```{r}
+#set.seed(4321)
+#tune.model.1<-tune(svm,attrition_flag~.,data=trainsvm,
+#                   kernel="linear",
+#                   ranges=list(cost=c(0.01,.1,1,10,100,1000)))
+#tune1.best.performance<-round(tune.model.1$best.performance,3)
+```
+
+```{r}
+#tune1.best.performance
+```
+
+
+```{r}
+set.seed(50)
+svm_linear1 = svm(formula =attrition_flag ~ .,
+                 data = trainsvm,
+                 type = 'C-classification',cost=0.08,
+                 kernel = 'linear')
+```
+
+
+```{r}
+svmlinear_pred1 = predict(svm_linear1, newdata = testsvm)
+```
+
+```{r}
+confusionMatrix(testsvm$attrition_flag, svmlinear_pred1)
+```
+
+```{r}
+print(svm_linear1)
+```
+
+##### Plotting SVM Predictions
+
+
+```{r}
+plot(svmlinear_pred, ylab='Density',main = 'SVM Linear - Support Vectors 1423',col=c('#3366CC','#9966FF'))
+
+svmlinear_df = as.list(svmlinear_pred)
+
+```
+
+```{r}
+plot(svmpoly_pred, ylab='Density',main = 'SVM Polynomial',col=c('#3366CC','#9966FF'))
+```
+
+```{r}
+plot(svmrad_pred, ylab='Density',main = 'SVM Radial',col=c('#3366CC','#9966FF'))
+```
+
+```{r}
+plot(svmsig_pred, ylab='Density',main = 'SVM Sigmoid')
+```
+Conclusion SVM:
+SVM Linear has support Vectors 1423 and Accuracy of 93.03%
+SVM Polynomial has 2468 supporting vectors with Accuracy of 83.57%
+SVM Radial has 2120 Supporting Vectors with  Accuracy of 90.22%
+SVM Sigmoid had 2242 supporting vectors with Accuracy of 88.87%
+
+The conclusion is SVM Linear Model has the highest accuracy and fastest classification of testing points. 
+
+
+### kNN
+
+KNN which stand for K Nearest Neighbor is a Supervised Machine Learning algorithm that classifies a new data point into the target class, depending on the features of its neighboring data points.
+It is one of the most simple Machine learning algorithms and it can be easily implemented for a varied set of problems.
+It is mainly based on feature similarity. KNN checks how similar a data point is to its neighbor and classifies the data point into the class it is most similar to.
+
+```{r}
+ccdata_knn<-ccdata
+```
+
+```{r}
+str(ccdata_knn)
+```
+
+#### Pre-Processing of data: converting factor to numeric values
+```{r}
+ccdata_knn$attrition_flag<-as.numeric(ccdata_knn$attrition_flag)
+ccdata_knn$age<- as.numeric((ccdata_knn$age))
+ccdata_knn$gender<- as.numeric(ccdata_knn$gender)
+ccdata_knn$dependents<-as.numeric(ccdata_knn$dependents)
+ccdata_knn$education<-as.numeric(ccdata_knn$education)
+ccdata_knn$marital<-as.numeric(ccdata_knn$marital)
+ccdata_knn$income<-as.numeric(ccdata_knn$income)
+ccdata_knn$card<-as.numeric(ccdata_knn$card)
+ccdata_knn$months_active<-as.numeric(ccdata_knn$months_active)
+ccdata_knn$products_num<-as.numeric(ccdata_knn$products_num)
+ccdata_knn$months_inactive<-as.numeric(ccdata_knn$months_inactive)
+ccdata_knn$contacts<-as.numeric(ccdata_knn$contacts)
+ccdata_knn$creditlimit<-as.numeric(ccdata_knn$creditlimit)
+ccdata_knn$revolving_bal<-as.numeric(ccdata_knn$revolving_bal)
+ccdata_knn$open_to_buy<- as.numeric(ccdata_knn$open_to_buy)
+ccdata_knn$amt_change_q4_q1<-as.numeric(ccdata_knn$amt_change_q4_q1)
+ccdata_knn$total_trans_amt<-as.numeric(ccdata_knn$total_trans_amt)
+ccdata_knn$total_trans_cnt<-as.numeric(ccdata_knn$total_trans_cnt)
+ccdata_knn$cnt_change_q4_q1<-as.numeric(ccdata_knn$cnt_change_q4_q1)
+ccdata_knn$utilization<-as.numeric(ccdata_knn$utilization)
+```
+
+```{r}
+str(ccdata_knn)
+```
+
+
+```{r}
+head(ccdata_knn)
+```
+
+```{r}
+set.seed(123)
+split <- sample(1:nrow(ccdata_knn),size=nrow(ccdata_knn)*0.7,replace = FALSE) #random selection of 70% data.
+ 
+trainknn <- ccdata_knn[split,] # 70% training data
+testknn <- ccdata_knn[-split,] # remaining 30% test data
+```
+
+```{r}
+dim(trainknn)
+dim(testknn)
+```
+
+
+```{r}
+trainknn_labels <- ccdata_knn[split,1]
+testknn_labels <-ccdata_knn[-split,1]
+NROW(trainknn_labels)
+
+```
+
+
+Sq.rt of 7088 is 84.2 . So starting with K=84 and 85
+
+```{r}
+knn.84 <- knn(train=trainknn, test=testknn, cl=trainknn_labels, k=84)
+knn.85 <- knn(train=trainknn, test=testknn, cl=trainknn_labels, k=85)
+
+```
+
+
+```{r}
+#Calculate the proportion of correct classification for k = 84,85
+ACC.84 <- 100 * sum(testknn_labels == knn.84)/NROW(testknn_labels)
+ACC.85<- 100 * sum(testknn_labels == knn.85)/NROW(testknn_labels)
+
+ACC.84
+ACC.85
+```
+
+
+```{r}
+confusionMatrix(table(knn.84 ,testknn_labels))
+```
+```{r}
+confusionMatrix(table(knn.85 ,testknn_labels))
+```
+
+Both are at accuracy 89.63.
+
+Looping to calculate accuracy when k=1 through 50.
+
+```{r}
+i=1
+k.optm=1
+for (i in 1:50){
+ knn.mod <- knn(train=trainknn, test=testknn, cl=trainknn_labels, k=i)
+ k.optm[i] <- round(100 * sum(testknn_labels == knn.mod)/NROW(testknn_labels),2)
+ k=i
+ cat(k,'=',k.optm[i],'
+')
+ }
+
+```
+
+Most accurate model is when k=5 at 93.02%
+```{r}
+#Accuracy plot
+plot(k.optm, type="b", xlab="K- Value",ylab="Accuracy level")
+```
+
+
+
+
+### Random Forest
+
+#### Finding Optimal Number of Trees
+
+
+```{r}
+
+rf1 <- randomForest(attrition_flag ~ ., data=train,
+                          ntree=100, keep.forest=FALSE,
+                           importance=TRUE)
+plot(rf1, log="y")
+varImpPlot(rf1)
+```
+
+
+#### Testing with 2 Trees
+
+```{r}
+
+set.seed(1111)
+rfm <- randomForest(attrition_flag~., data=train, ntree=2)
+print(rfm)
+plot(rfm)
+#apply the prediction and save it as it's own data
+predRF <- predict(rfm, train, type=c("class"))
+#save the prediction and append it into the original train dataset
+train$pred = predRF
+
+##create a new dataframe with the actual and predicted
+actual = train$attrition_flag
+pred = train$pred
+
+df_rmf = (data.frame(actual,pred))
+##calculate the confusion matrix
+confusionMatrix(df_rmf$actual,df_rmf$pred)
+```
+
+This is quite high but we can potentially increase the accuracy by optimizing the number of trees used.
+
+
+The table above allows us to see the percentages of our prediction model with 2 trees.
+
+
+
+#### Testing with 15 Trees
+
+
+```{r}
+set.seed(1111)
+rftrain = train[-c(21:22)]
+rfm2 <- randomForest(attrition_flag~., data=rftrain, ntree=15)
+print(rfm2)
+plot(rfm2)
+varImpPlot(rfm2)
+predRF2 <- predict(rfm2, train, type=c("class"))
+train$pred2 = predRF2
+pred2 = train$pred2
+df_rmf = (data.frame(actual,pred2))
+confusionMatrix(df_rmf$actual,df_rmf$pred2)
+```
+
+
+This plot shows the Error and the Number of Trees. We can easily notice that how the Error is dropping as we keep on adding more and more trees and average them.
+
+
+With 15 trees, the accuracy rate is 99%, which is currently our most accurate data model. Based on the confusion matrix, the random forest predicted 3 incorrectly. 
+
+
+
+```{r}
+# recreate confusion matrix numbers
+conf_mat <- matrix(c(1109, 2, 1, 5976), nrow = 2, byrow = TRUE)
+colnames(conf_mat) <- c("Attrited Customer", "Existing Customer")
+rownames(conf_mat) <- c("Attrited Customer", "Existing Customer")
+# Convert confusion matrix to dataframe
+conf_df <- as.data.frame.matrix(conf_mat)
+conf_df$actual <- rownames(conf_df)
+# Melt dataframe for plotting
+conf_melt <- melt(conf_df, id.vars = "actual")
+
+# Plot heatmap with counts
+ggplot(data = conf_melt, aes(x = variable, y = actual, fill = value)) +
+  geom_tile(color = "white", size = 0.5) +
+  scale_fill_gradient(low = "white", high = "steelblue", name = "Count") +
+  geom_text(aes(label = value), color = "black", size = 4) +
+  theme_bw() +
+  labs(title = "Confusion Matrix", x = "Predicted", y = "Actual")
+
+
+```
+#K-Means Clustering
+
+```{r}
+kmeans_ccdata<-ccdata
+str(kmeans_ccdata)
+```
+#Pre-processing data - Converting factors to Numeric
+```{r}
+kmeans_ccdata$age<-as.numeric(kmeans_ccdata$age)
+kmeans_ccdata$gender<-as.numeric(kmeans_ccdata$gender)
+kmeans_ccdata$dependents<-as.numeric(kmeans_ccdata$dependents)
+kmeans_ccdata$education<-as.numeric(kmeans_ccdata$education)
+kmeans_ccdata$marital<-as.numeric(kmeans_ccdata$marital)
+kmeans_ccdata$income<-as.numeric(kmeans_ccdata$income)
+kmeans_ccdata$card<-as.numeric(kmeans_ccdata$card)
+kmeans_ccdata$months_active<-as.numeric(kmeans_ccdata$months_active)
+kmeans_ccdata$products_num<-as.numeric(kmeans_ccdata$products_num)
+kmeans_ccdata$months_inactive<-as.numeric(kmeans_ccdata$months_inactive)
+kmeans_ccdata$contacts<-as.numeric(kmeans_ccdata$contacts)
+kmeans_ccdata$creditlimit<-as.numeric(kmeans_ccdata$creditlimit)
+kmeans_ccdata$revolving_bal<-as.numeric(kmeans_ccdata$revolving_bal)
+kmeans_ccdata$open_to_buy<-as.numeric(kmeans_ccdata$open_to_buy)
+kmeans_ccdata$amt_change_q4_q1<-as.numeric(kmeans_ccdata$amt_change_q4_q1)
+kmeans_ccdata$total_trans_amt<-as.numeric(kmeans_ccdata$total_trans_amt)
+kmeans_ccdata$total_trans_cnt<-as.numeric(kmeans_ccdata$total_trans_cnt)
+kmeans_ccdata$cnt_change_q4_q1<-as.numeric(kmeans_ccdata$cnt_change_q4_q1)
+kmeans_ccdata$utilization<-as.numeric(kmeans_ccdata$utilization)
+```
+
+```{r}
+#kmeans_ccdata$attrition_flag<-as.numeric(kmeans_ccdata$attrition_flag)
+```
+#Adding Client Number back to the data and keeping it as row name
+```{r}
+kmeans_ccdata<-cbind(ccdata_cor$CLIENTNUM,kmeans_ccdata)
+```
+
+```{r}
+head(kmeans_ccdata)
+```
+Adding Client Number as Row Name
+```{r}
+rownames(kmeans_ccdata)<-kmeans_ccdata[,1]
+kmeans_ccdata[,1]<-NULL
+```
+
+```{r}
+head(kmeans_ccdata)
+```
+
+#taking a backup and removing attrition_flag
+```{r}
+kmeans_ccdata_bkup<-kmeans_ccdata 
+```
+
+```{r}
+kmeans_ccdata$attrition_flag<-NULL
+```
+# Executing k-means with k=2
+```{r}
+set.seed(50)
+kcluster<-kmeans(kmeans_ccdata,2)
+kmeans_ccdata$kcluster<-as.factor(kcluster$cluster)
+```
+
+```{r}
+str(kcluster)
+kcluster$centers
+```
+```{r}
+#kcluster
+```
+#plotting the clusters
+```{r}
+kmeans_ccdata1<-kmeans_ccdata_bkup
+kmeans_ccdata1$kcluster<-as.factor(kcluster$cluster)
+```
+
+```{r}
+clusplot(kmeans_ccdata,kmeans_ccdata$kcluster,
+         color = TRUE,labels=0,lines = 0, shade = TRUE)
+```
+
+```{r}
+ggplot(data=kmeans_ccdata1,aes(x=attrition_flag,fill=kcluster))+
+         geom_bar(stat = "count")+
+                  labs(title="K -2")+
+                  theme(plot.title=element_text(hjust = 1),
+                         text=element_text(size=15))
+```
+
+#identifying an optimal value for k-clusters 
+Elbow Method
+```{r}
+set.seed(123)
+
+fviz_nbclust(kmeans_ccdata, kmeans, method = "wss")
+```
+Silhoutte Method
+```{r}
+set.seed(123)
+fviz_nbclust(kmeans_ccdata, kmeans, method = "silhouette")
+```
+
+Both Method  suggests that k=3 is an ideal choice Rerun with k=3
+```{r}
+set.seed(50)
+kcluster<-kmeans(kmeans_ccdata,3)
+kmeans_ccdata$kcluster<-as.factor(kcluster$cluster)
+```
+
+
+```{r}
+kmeans_ccdata1<-kmeans_ccdata_bkup
+kmeans_ccdata1$kcluster<-as.factor(kcluster$cluster)
+```
+
+```{r}
+clusplot(kmeans_ccdata,kmeans_ccdata$kcluster,
+         color = TRUE,labels=0,lines = 0, shade = TRUE)
+```
+
+```{r}
+ggplot(data=kmeans_ccdata1,aes(x=attrition_flag,fill=kcluster))+
+         geom_bar(stat = "count")+
+                  labs(title="K -3")+
+                  theme(plot.title=element_text(hjust = 1),
+                         text=element_text(size=15))
+```
+
+#HAC
+
+```{r}
+ccdata_hac<-kmeans_ccdata_bkup
+str(ccdata_hac)
+```
+
+```{r}
+ccdata_hac1<-ccdata_hac[,c(2:20)]
+str(ccdata_hac1)
+```
+
+#calculating various distances:
+```{r}
+distance_eucl<-dist(ccdata_hac1,method='euclidean')
+distance_man<-dist(ccdata_hac1,method='manhattan')
+distance_mink<-dist(ccdata_hac1,method='minkowski')
+distance_can<-dist(ccdata_hac1,method='canberra')
+distance_max<-dist(ccdata_hac1,method='maximum')
+distance_bin<-dist(ccdata_hac1,method='binary')
+```
+
+```{r}
+head(ccdata_hac1)
+```
+#hac with euclidean distance
+```{r}
+hac_eucl=hclust(distance_eucl,method="complete")
+plot(hac_eucl,cex=0.6,hang=1)
+rect.hclust(hac_eucl,k=3,border=2:5)
+```
+
+```{r}
+hac_man=hclust(distance_man,method="complete")
+plot(hac_man,cex=0.6,hang=1)
+rect.hclust(hac_man,k=3,border=2:5)
+```
+
+
+
+
+```{r}
+hac_mink=hclust(distance_mink,method="complete")
+plot(hac_mink,cex=0.6,hang=1)
+rect.hclust(hac_mink,k=3,border=2:5)
+```
+
+
+```{r}
+#install.packages("ape")
+#library("ape")
+#plot(as.phylo(hac_mink), type = "fan")
+# Cut the dendrogram into 4 clusters
+colors = c("red", "blue", "green", "black","orange","pink")
+clus4 = cutree(hac_mink, 6)
+#plot(as.phylo(hac_mink),type="fan", tip.color = colors[clus4],
+#     label.offset = 1, cex = 0.7)
+```
+
+
+
+
+```{r}
+
+dend <- as.dendrogram(hac_mink)
+
+library(dendextend)
+par(mfrow = c(1,2), mar = c(5,2,1,0))
+dend <- dend %>%
+         color_branches(k = 3) %>%
+         set("branches_lwd", c(2,1,2)) %>%
+         set("branches_lty", c(1,2,1))
+
+plot(dend)
+
+dend <- color_labels(dend, k = 5)
+# The same as:
+# labels_colors(dend)  <- get_leaves_branches_col(dend)
+plot(dend)
+```
+
+
