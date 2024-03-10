@@ -17,10 +17,26 @@ Given the housing affordability challenges, living with roommates is suggested a
 
 ## Required Tools
 
-Python
+**Python**
 
-Python Libraries
-
+**Python Libraries**
+- Pandas
+- Matplotlib
+- numpy
+- sklearn.linear_model
+- sklearn.metrics
+- scipy
+- seaborn
+- sklearn.preprocessing
+- sklearn.compose
+- sklearn.pipeline
+- sklearn.naive_bayes
+- sklearn.metrics
+- sklearn.ensemble
+- sklearn.model_seclection
+- sklearn.linear_model
+- sklearn.metrics
+  
 
 
 ## Table of Contents
