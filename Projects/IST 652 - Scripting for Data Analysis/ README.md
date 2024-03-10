@@ -21,21 +21,21 @@ Python
 
 Python Libraries:
 
-Pandas
+-Pandas
 
-matplotlib
+-matplotlib
 
-numpy
+-numpy
 
-pprint
+-pprint
 
-re
+-re
 
-seaborn
+-seaborn
 
-decimal
+-decimal
 
-plotly
+-plotly
 
 ## Table of Contents
 
