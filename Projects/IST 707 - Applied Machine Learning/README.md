@@ -22,7 +22,7 @@ R
 ## Table of Contents
 
 1. README.md
-2. Dataset
+2. [Dataset](https://github.com/a-n7/Applied-Data-Science-Portfolio/tree/main/Projects/IST%20707%20-%20Applied%20Machine%20Learning/Dataset)
 3. Project Report
 4. Project Presentation
 5. Project Code (R)
