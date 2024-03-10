@@ -23,7 +23,7 @@ R
 
 1. README.md
 2. [Dataset](https://github.com/a-n7/Applied-Data-Science-Portfolio/tree/main/Projects/IST%20707%20-%20Applied%20Machine%20Learning/Dataset)
-3. Project Report
+3. [Project Report](https://github.com/a-n7/Applied-Data-Science-Portfolio/blob/main/Projects/IST%20707%20-%20Applied%20Machine%20Learning/Bank%20Churners%20Presentation.pdf)
 4. Project Presentation
 5. Project Code (R)
 6. Project Code Knit (R)
