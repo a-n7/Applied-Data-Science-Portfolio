@@ -1,8 +1,9 @@
 # IST 652 - Scripting for Data Analysis
 
 ## Amanda Norwood
-
+Contact:
 annorwoo@syr.edu
+
 atn.norwood@gmail.com
 
 ## Description
