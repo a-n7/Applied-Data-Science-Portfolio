@@ -19,22 +19,14 @@ Findings indicate that indoor stadiums generally yield better team performance, 
 **Python**
 
 Python Libraries:
-    
--Pandas
-    
--matplotlib
-    
--numpy
-
--pprint
-
--re
-
--seaborn
-    
--decimal
-    
--plotly
+- Pandas
+- matplotlib
+- numpy
+- pprint
+- re
+- seaborn
+- decimal
+- plotly
 
 
 ## Table of Contents
