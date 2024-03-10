@@ -2,6 +2,7 @@
 
 ## Amanda Norwood
 Contact:
+
 annorwoo@syr.edu
 
 atn.norwood@gmail.com
