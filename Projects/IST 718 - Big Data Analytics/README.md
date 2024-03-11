@@ -7,13 +7,17 @@ annorwoo@syr.edu
 
 atn.norwood@gmail.com
 
-## Description
+## Project Overview
 
-The analysis highlights significant disparities in housing affordability and earnings based on gender, degree, and profession in Los Angeles. Men consistently out earn women across various degree types and professions, with only two professions offering the possibility of affording a home on a single salary. Notably, the analysis reveals a correlation between affordable housing and higher crime rates, suggesting potential trade-offs between affordability and safety.
+### Methods Utilized:
 
-Recommendations emphasize the importance of researching pay based on profession before migrating to Los Angeles, particularly considering potential gender disparities in salary. Negotiating fair compensation is advised for all individuals, regardless of gender. Furthermore, individuals should consider reported average wages for their chosen profession, informing career decisions and potential adjustments such as further education or career changes.
+-Linear Regression: Predicted salary values for 2021-2023 and analyzed wage variability based on gender and degree type.
+T-Tests: Revealed significant pay differences between genders across various education levels, except for bachelor's degrees.
 
-Given the housing affordability challenges, living with roommates is suggested as a strategy to mitigate costs and enhance security. By sharing expenses and responsibilities, individuals can navigate affordability challenges while prioritizing safety. Overall, the analysis aims to equip potential migrants with essential information to make informed decisions regarding housing affordability and salary prospects in Los Angeles.
+-Random Forest: Employed decision trees to predict housing affordability based on profession, achieving 100% accuracy.
+Naïve Bayes: Utilized probability algorithms to predict housing affordability with a 94.84% accuracy rate.
+These methods provide insights into gender pay disparities, income potential based on profession, and aid in decision-making regarding housing affordability and career choices in Los Angeles.
+
 
 ## Required Tools
 
