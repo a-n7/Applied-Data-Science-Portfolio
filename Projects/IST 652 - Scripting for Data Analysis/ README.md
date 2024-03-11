@@ -7,7 +7,7 @@ annorwoo@syr.edu
 
 atn.norwood@gmail.com
 
-## Project Overivew
+## Project Overview
 The goal of our project is to analyze NFL statistics sourced from Github and Kaggle, aiming to provide insights for stakeholders like NFL Owners, General Managers, Scouts, and Players. By scrutinizing data on stadium and surface types, environmental factors, special teams training needs, and game predictions, we aim to facilitate informed decision-making. Key questions explored include playoff team differentials, player/team career statistics, home-field advantage, and weather impact. 
 
 The data analysis for our NFL project involved importing and cleansing datasets from sources like GitHub and Kaggle, focusing on game statistics, team information, and field conditions. We utilized Python programming language and libraries such as Pandas, Matplotlib, Numpy, and Seaborn for data manipulation, visualization, and analysis. Through various analytical techniques, including correlation studies, box plots, and regression analysis, business questions were addressed related to stadium types, surface conditions, environmental factors, and player performances to provide insights for stakeholders in the NFL ecosystem.
