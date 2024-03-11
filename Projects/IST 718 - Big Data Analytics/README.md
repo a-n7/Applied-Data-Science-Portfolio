@@ -10,12 +10,10 @@ atn.norwood@gmail.com
 ## Project Overview
 
 ### Methods Utilized:
-
--Linear Regression: Predicted salary values for 2021-2023 and analyzed wage variability based on gender and degree type.
-T-Tests: Revealed significant pay differences between genders across various education levels, except for bachelor's degrees.
-
--Random Forest: Employed decision trees to predict housing affordability based on profession, achieving 100% accuracy.
-Naïve Bayes: Utilized probability algorithms to predict housing affordability with a 94.84% accuracy rate.
+- Linear Regression: Predicted salary values for 2021-2023 and analyzed wage variability based on gender and degree type.
+- T-Tests: Revealed significant pay differences between genders across various education levels, except for bachelor's degrees.
+- Random Forest: Employed decision trees to predict housing affordability based on profession, achieving 100% accuracy.
+- Naïve Bayes: Utilized probability algorithms to predict housing affordability with a 94.84% accuracy rate.
 These methods provide insights into gender pay disparities, income potential based on profession, and aid in decision-making regarding housing affordability and career choices in Los Angeles.
 
 
