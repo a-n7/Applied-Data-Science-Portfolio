@@ -41,7 +41,7 @@ Given the housing affordability challenges, living with roommates is suggested a
 
 1. README.md
 2. [Datasets]()
-3. [Project Presetnation]()
+3. [Project Presentation]()
 4. [Project Report]()
 5. [Project Code]()
 6. [Project Code PDF]()
