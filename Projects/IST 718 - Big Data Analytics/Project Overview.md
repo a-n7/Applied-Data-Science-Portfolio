@@ -9,7 +9,7 @@ atn.norwood@gmail.com
 
 ## Project Overview
 
-The analysis delves into factors affecting housing affordability in Los Angeles, primarily examining gender, degree, and profession impacts. Key methods include linear regression for salary forecasting, t-tests to uncover gender pay gaps, and machine learning techniques like Random Forest and Naïve Bayes for predicting housing affordability based on profession.
+The City of Los Angeles is spearheading a project to aid migrants in their relocation by developing a tool that delves into the correlation between crime rates and housing affordability. This initiative aims to investigate the influence of demographics and education on income levels and housing costs, pinpointing key factors driving home prices in different areas.
 
 ### Methods Utilized:
 - Linear Regression: Predicted salary values for 2021-2023 and analyzed wage variability based on gender and degree type.
