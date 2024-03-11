@@ -9,7 +9,7 @@ atn.norwood@gmail.com
 
 ## Project Overview:
 
-The "Bank Churners" project conducted as part of the IST 707 Applied Machine Learning course by Renjini Rajan and Amanda Norwood aims to analyze factors influencing customer churn in the banking industry. Focusing on current and past credit card customers, the dataset contains demographic information along with banking and credit card behavior.
+A bank is conducting detailed analysis using demographic data to identify factors leading to customer churn in their credit card services. By employing various visualization and machine learning techniques, the analysis aims to provide proactive recommendations to retain existing customers, develop new products, and address the underlying reasons for customer attrition. The findings will guide the bank's marketing team in crafting personalized recommendations and enhancing overall product and service offerings to meet the evolving needs of customers.
 
 ### Methods Used:
 
