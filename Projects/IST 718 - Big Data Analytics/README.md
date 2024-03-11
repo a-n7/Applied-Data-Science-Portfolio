@@ -40,8 +40,8 @@ Given the housing affordability challenges, living with roommates is suggested a
 ## Table of Contents
 
 1. README.md
-2. [Datasets]()
-3. [Project Presentation]()
-4. [Project Report]()
-5. [Project Code]()
-6. [Project Code PDF]()
+2. [Datasets](https://github.com/a-n7/Applied-Data-Science-Portfolio/tree/main/Projects/IST%20718%20-%20Big%20Data%20Analytics/Datasets)
+3. [Project Presentation](https://github.com/a-n7/Applied-Data-Science-Portfolio/blob/main/Projects/IST%20718%20-%20Big%20Data%20Analytics/Project%20Presentation.pdf)
+4. [Project Report](https://github.com/a-n7/Applied-Data-Science-Portfolio/blob/main/Projects/IST%20718%20-%20Big%20Data%20Analytics/Project%20Report.pdf)
+5. [Project Code](https://github.com/a-n7/Applied-Data-Science-Portfolio/blob/main/Projects/IST%20718%20-%20Big%20Data%20Analytics/Project%20Code.ipynb)
+6. [Project Code PDF](https://github.com/a-n7/Applied-Data-Science-Portfolio/blob/main/Projects/IST%20718%20-%20Big%20Data%20Analytics/Project%20Code%20Print.pdf)
