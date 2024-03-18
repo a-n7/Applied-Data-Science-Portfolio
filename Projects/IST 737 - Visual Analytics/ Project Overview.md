@@ -20,4 +20,4 @@ The goal is to create an interactive dashboard in Tableau to answer business que
 ## Table of Contents
 
 1. Project Overview.md
-2. Tableau Final Project
+2. Airline Project
