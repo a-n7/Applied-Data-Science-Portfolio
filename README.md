@@ -4,7 +4,7 @@ Welcome to my data science portfolio from Syracuse University's School of Inform
 
 ## Program Overview
 
-##### [Professional Resume](https://github.com/a-n7/Applied-Data-Science-Portfolio/blob/main/Program%20Overview/%20Norwood%20Resume.docx)
+
 ##### [Applied Data Science Portfolio Report](https://github.com/a-n7/Applied-Data-Science-Portfolio/blob/main/Program%20Overview/Applied%20Data%20Science%20Portfolio%20Report.pdf)
 ##### [Portfolio Presentation PowerPoint](https://github.com/a-n7/Applied-Data-Science-Portfolio/blob/main/Program%20Overview/Portfolio%20Presentation%20PowerPoint.pdf)
 
