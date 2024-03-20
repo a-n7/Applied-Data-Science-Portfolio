@@ -1,4 +1,5 @@
 # Amanda Norwood's Data Science Portfolio
+#### SU ID 503480562
 
 Welcome to my data science portfolio from Syracuse University's School of Information Technologies, showcasing the projects completed during my Masters in the Applied Data Science program.
 
